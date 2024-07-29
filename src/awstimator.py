@@ -27,7 +27,7 @@ class Awstimator:
         """
         Returns the number of bytes required to store the item in DynamoDB.
 
-        Base on https://medium.com/@zaccharles/d1728942eb7c
+        Based on https://medium.com/@zaccharles/d1728942eb7c
 
         :param item: ddb item
         :type item: dict

@@ -1,0 +1,7 @@
+{
+    "pricing_model": "on_demand",
+    "writes_per_item_per_month": 10000,
+    "reads_per_item_per_month": 10000,
+    "wcu_item_size_bytes": 1000,
+    "rcu_item_size_bytes": 4000
+}
