@@ -11,6 +11,8 @@ def dynamodb_mock():
     #     yield boto3.resource('dynamodb')
 
 
+# TODO: add decorator to measure the cost of the write and read to DYNAMODB using the awstimator lib
+# print the cost of the write and read to the command line
 @moto.mock_aws
 def test_put_item_with_streams():
     name = "TestTable"
@@ -25,13 +27,10 @@ def test_put_item_with_streams():
         TableName=name,
         KeySchema=[{"AttributeName": "forum_name", "KeyType": "HASH"}],
         AttributeDefinitions=[{"AttributeName": "forum_name", "AttributeType": "S"}],
-        # StreamSpecification={
-        #     "StreamEnabled": True,
-        #     "StreamViewType": "NEW_AND_OLD_IMAGES",
-        # },
         ProvisionedThroughput={"ReadCapacityUnits": 5, "WriteCapacityUnits": 5},
     )
 
+    # TODO: have the decorator see this and measure the cost of the write based on the size of the Item
     conn.put_item(
         TableName=name,
         Item={
@@ -43,6 +42,7 @@ def test_put_item_with_streams():
         },
     )
 
+    # TODO: have the decorator see this and measure the cost of the read based on the size of the Item
     result = conn.get_item(TableName=name, Key={"forum_name": {"S": "Fancy Forum"}})
 
     assert result["Item"] == {
