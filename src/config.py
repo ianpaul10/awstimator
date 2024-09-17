@@ -9,8 +9,8 @@ class Config(BaseModel):
     writes_per_month: int = Field(default=10000)
     reads_per_month: int = Field(default=10000)
 
-    wcu_item_size_bytes = 1 * 1000
-    rcu_item_size_bytes = 4 * 1000
+    wcu_item_size_bytes: int = Field(default=1000)
+    rcu_item_size_bytes: int = Field(default=4 * 1000)
 
     @classmethod
     def from_default(cls):
