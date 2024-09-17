@@ -1,15 +1,19 @@
 from decimal import Decimal
-import json
-import boto3
-from config import Config
-from ddb_size_calc import calculate_item_size_in_bytes
+# from config import Config
+# from ddb_size_calc import calculate_item_size_in_bytes
+from .ddb_size_calc import calculate_item_size_in_bytes
 from boto3.dynamodb.types import TypeDeserializer, TypeSerializer
 
 
 class Awstimator:
     def __init__(self) -> None:
         # self.boto_ddb = boto3.resource("dynamodb")
-        self.config = Config
+        # self.config = Config
+        self.config = {
+            "pricing_model": "on_demand",
+            "wcu_item_size_bytes": 1000,
+            "rcu_item_size_bytes": 4000,
+        }
 
     @staticmethod
     def _convert_to_ddb_obj(base_obj: dict):
@@ -45,10 +49,12 @@ class Awstimator:
         return actual_size["size"]
 
     def calculate_req_rcu(self, item_size_bytes: int) -> float:
-        return item_size_bytes / Config.rcu_item_size_bytes
+        # return item_size_bytes / self.config.rcu_item_size_bytes
+        return item_size_bytes / self.config["rcu_item_size_bytes"]
 
     def calculate_req_wcu(self, item_size_bytes: int) -> float:
-        return item_size_bytes / Config.wcu_item_size_bytes
+        # return item_size_bytes / self.config.wcu_item_size_bytes
+        return item_size_bytes / self.config["wcu_item_size_bytes"]
 
 
 if __name__ == "__main__":
