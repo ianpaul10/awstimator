@@ -1,6 +1,7 @@
 import boto3
 import moto
 import pytest
+from src.ddb_cost_decorator import measure_ddb_cost
 
 
 @pytest.fixture
@@ -11,9 +12,8 @@ def dynamodb_mock():
     #     yield boto3.resource('dynamodb')
 
 
-# TODO: add decorator to measure the cost of the write and read to DYNAMODB using the awstimator lib
-# print the cost of the write and read to the command line
 @moto.mock_aws
+@measure_ddb_cost
 def test_put_item_with_streams():
     name = "TestTable"
     conn = boto3.client(
@@ -30,7 +30,7 @@ def test_put_item_with_streams():
         ProvisionedThroughput={"ReadCapacityUnits": 5, "WriteCapacityUnits": 5},
     )
 
-    # TODO: have the decorator see this and measure the cost of the write based on the size of the Item
+    # The decorator will automatically measure the cost of this write operation
     conn.put_item(
         TableName=name,
         Item={
@@ -42,7 +42,7 @@ def test_put_item_with_streams():
         },
     )
 
-    # TODO: have the decorator see this and measure the cost of the read based on the size of the Item
+    # The decorator will automatically measure the cost of this read operation
     result = conn.get_item(TableName=name, Key={"forum_name": {"S": "Fancy Forum"}})
 
     assert result["Item"] == {
