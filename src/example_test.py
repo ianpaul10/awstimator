@@ -1,21 +1,27 @@
 import boto3
+from moto import mock_aws
 import pytest
 from .ddb_cost_decorator import measure_ddb_cost
 
 @pytest.fixture
-def dynamodb_mock():
-    yield boto3.resource("dynamodb")
+@mock_aws
+def dynamodb_mock_sock():
+    # return boto3.client("dynamodb", region_name="us-west-2")
+    yield boto3.client("dynamodb", region_name="us-west-2")
+    # yield boto3.resource("dynamodb")
 
 @measure_ddb_cost
-def test_put_item_with_streams():
+# @mock_aws
+def test_put_item_with_streams(dynamodb_mock_sock):
     print("TEST --> test_put_item_with_streams")
     name = "TestTable"
-    conn = boto3.client(
-        "dynamodb",
-        region_name="us-west-2",
-        # aws_access_key_id="ak",
-        # aws_secret_access_key="sk",
-    )
+    # conn = boto3.client(
+    #     "dynamodb",
+    #     region_name="us-west-2",
+    #     # aws_access_key_id="ak",
+    #     # aws_secret_access_key="sk",
+    # )
+    conn = dynamodb_mock_sock
 
     conn.create_table(
         TableName=name,
