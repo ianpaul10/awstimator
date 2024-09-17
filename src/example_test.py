@@ -1,20 +1,11 @@
 import boto3
-import moto
 import pytest
-
-# from ddb_cost_decorator import measure_ddb_cost
 from .ddb_cost_decorator import measure_ddb_cost
 
-
 @pytest.fixture
-@moto.mock_aws
 def dynamodb_mock():
     yield boto3.resource("dynamodb")
-    # with moto.mock_dynamodb():
-    #     yield boto3.resource('dynamodb')
 
-
-@moto.mock_aws
 @measure_ddb_cost
 def test_put_item_with_streams():
     print("TEST --> test_put_item_with_streams")

@@ -1,16 +1,20 @@
 import functools
-# from awstimator import Awstimator
 from .awstimator import Awstimator
-
+from moto import mock_dynamodb
+import boto3
 
 def measure_ddb_cost(func):
     @functools.wraps(func)
+    @mock_dynamodb
     def wrapper(*args, **kwargs):
         print("DECORATOR --> measure_ddb_cost")
 
         awstimator = Awstimator()
         write_size = 0
         read_size = 0
+
+        original_put_item = boto3.client('dynamodb').put_item
+        original_get_item = boto3.client('dynamodb').get_item
 
         def mock_put_item(TableName, Item, **kwargs):
             print("MOCK PUT ITEM")
@@ -21,32 +25,19 @@ def measure_ddb_cost(func):
             return original_put_item(TableName=TableName, Item=Item, **kwargs)
 
         def mock_get_item(TableName, Key, **kwargs):
+            print("MOCK GET ITEM")
             nonlocal read_size
             result = original_get_item(TableName=TableName, Key=Key, **kwargs)
             if "Item" in result:
-                read_size = awstimator.get_size_in_bytes(
-                    result["Item"], is_ddb_item=True
-                )
+                read_size = awstimator.get_size_in_bytes(result["Item"], is_ddb_item=True)
             return result
 
         # Patch the DynamoDB client methods
-        import boto3
-
-        print("PATCHING")
-
-        original_put_item = boto3.client("dynamodb", region_name="us-west-2").put_item
-        original_get_item = boto3.client("dynamodb", region_name="us-west-2").get_item
-        boto3.client("dynamodb", region_name="us-west-2").put_item = mock_put_item
-        boto3.client("dynamodb", region_name="us-west-2").get_item = mock_get_item
+        boto3.client('dynamodb').put_item = mock_put_item
+        boto3.client('dynamodb').get_item = mock_get_item
 
         # Run the test function
         result = func(*args, **kwargs)
-
-        print("RESTORING")
-
-        # Restore original methods
-        boto3.client("dynamodb", region_name="us-west-2").put_item = original_put_item
-        boto3.client("dynamodb", region_name="us-west-2").get_item = original_get_item
 
         # Calculate and print costs
         write_cost = awstimator.calculate_req_wcu(write_size)
