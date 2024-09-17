@@ -1,7 +1,9 @@
 import boto3
 import moto
 import pytest
-from src.ddb_cost_decorator import measure_ddb_cost
+
+# from ddb_cost_decorator import measure_ddb_cost
+from .ddb_cost_decorator import measure_ddb_cost
 
 
 @pytest.fixture
@@ -15,12 +17,13 @@ def dynamodb_mock():
 @moto.mock_aws
 @measure_ddb_cost
 def test_put_item_with_streams():
+    print("TEST --> test_put_item_with_streams")
     name = "TestTable"
     conn = boto3.client(
         "dynamodb",
         region_name="us-west-2",
-        aws_access_key_id="ak",
-        aws_secret_access_key="sk",
+        # aws_access_key_id="ak",
+        # aws_secret_access_key="sk",
     )
 
     conn.create_table(
@@ -52,34 +55,6 @@ def test_put_item_with_streams():
         "SentBy": {"S": "test"},
         "Data": {"M": {"Key1": {"S": "Value1"}, "Key2": {"S": "Value2"}}},
     }
-
-
-@moto.mock_aws
-@pytest.mark.skip
-def test_dynamodb_add_and_read_item():
-    # Create connection to the mock dynamodb
-    conn = boto3.client("dynamodb", region_name="us-west-2")
-
-    # Create a mock table
-    table = conn.create_table(
-        TableName="TestTable",
-        KeySchema=[{"AttributeName": "id", "KeyType": "HASH"}],
-        AttributeDefinitions=[{"AttributeName": "id", "AttributeType": "S"}],
-        BillingMode="PAY_PER_REQUEST",
-    )
-
-    # Add an item to the table
-    item = {"id": "1", "name": "Test Item", "value": 100}
-    table.put_item(Item=item)
-
-    # Read the item back
-    response = table.get_item(Key={"id": "1"})
-    retrieved_item = response["Item"]
-
-    # Assert on the contents
-    assert retrieved_item["id"] == "1"
-    assert retrieved_item["name"] == "Test Item"
-    assert retrieved_item["value"] == 100
 
 
 def test_example_test_measuring_cost():
