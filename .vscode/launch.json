@@ -1,0 +1,17 @@
+{
+  "configurations": [
+    {
+      "name": "nvim single test debug",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/src/example_test.py",
+      //"args": ["test_put_item_with_streams"],
+      "args": ["test_example_test_measuring_cost"],
+
+      "console": "integratedTerminal",
+      "env": {
+        "PYTHONPATH": "."
+      }
+    }
+  ]
+}
